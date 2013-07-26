@@ -1,0 +1,165 @@
+<!--
+ Copyright (c) 2013 Julius Chronak. You can use this source code
+ under the terms of the MIT License found in the LICENSE file:
+
+ https://raw.github.com/julochrobak/streetscleaner/master/LICENSE
+-->
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <title>Clean up your messy streets</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+    <style>
+        textarea {
+            height: 200px;
+            width: 280px;
+            margin: 0 20px 0 20px;
+        }
+
+        body {
+            margin: 20px auto 20px auto;
+            width: 720px;
+        }
+
+        div {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        footer {
+            border-top: 1px solid;
+            margin: 40px 0 0 0;
+            text-align: center;
+        }
+
+        pre, textarea {
+            font-family:Courier;
+            color:#333;
+            background: #f8f8f8;  
+            font-size:12px;
+            border-radius:5px;
+            padding:8px 15px;
+            border:1px solid #e5e5e5;
+        }
+
+        pre {
+            overflow-x: auto;
+        }
+
+        input {
+            font-size: 16px;
+        }
+    </style>
+
+    <script type="text/javascript">
+        function $(id) {
+            return document.getElementById(id)
+        }
+
+        function info(msg) {
+            $("info").innerHTML = msg;
+        }
+
+        function best(name, result) {
+            var tmp = [];
+            for (var i = 0; i < result.length; i++) {
+                if (result[i].input == name) {
+                    tmp.push(result[i]);
+                }
+            }
+
+            if (tmp.length == 0) {
+                return {input: name, street: "", match: 0};
+            }
+
+            tmp.sort(function(a,b) {
+                    return b.match - a.match;
+            });
+
+            return tmp[0];
+        }
+
+        function clean(e) {
+            if (e != null && e !== undefined && e.keyCode != 13) {
+                return;
+            }
+            info("processing ...");
+            $("result").value = "";
+
+            var request = {
+                /* expression is executed by the mingle.io service */
+                expr: "[ {input: b, " +
+                      "   street: a.LOK_TEXT, " +
+                      "   match: fuzzy(lower(a.LOK_TEXT), lower(b))} | " +
+                      "   a <~ ch_zh_strassennamenverzeichnis, " +
+                      "   b <- input, " +
+                      "   fuzzy(lower(a.LOK_TEXT), lower(b)) > confidence ]",
+
+                /* input and confidence variables are parameters to the expression */
+                input: $("streets").value.split("\n"),
+                confidence: 0.2 
+            }
+            try {
+                var req = new XMLHttpRequest();
+                req.onreadystatechange = function() {
+                    if (req.readyState != 4) {
+                        return;
+                    }
+                    var resp = JSON.parse(req.responseText);
+                    if (resp.error) {
+                        info(resp.line + ":" + resp.column + " - " + resp.error);
+                    } else {
+                        for (var i = 0; i < request.input.length; i++) {
+                            var name = request.input[i];
+                            if (name != "") {
+                                var m = best(name,  resp.result);
+                                $("result").value += name + "," + 
+                                                     m.street + "," +
+                                                     Math.round(100 * m.match) + "%\n";
+                            }
+                        }
+                        info("done in " + resp.time);
+                    }
+                };
+
+                req.open("POST", "https://data.mingle.io/", true);
+                req.send(JSON.stringify(request));
+            } catch (e) {
+                info(e);
+            }
+        }
+
+        function example() {
+            $("streets").value = $("example").innerHTML;
+            clean();
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <h1>Street names cleaner within the city of Zürich</h1>
+        <textarea id="streets" placeholder="type your streets here (one per line) and click the Clean! button"></textarea>
+        <textarea id="result"></textarea>
+        <p><input type="button" value="Clean!" onclick="clean()"></input></p>
+        <p id="info">&nbsp;</p>
+    </div>
+    <h2>Example</h2>
+    <pre id="example">bahnofstr
+limaqua</pre>
+    <div>
+        <input type="button" value="Run" onclick="example()"></input>
+    </div>
+    <h3>What is this?</h3>
+    <p>This is a very simple tool to help you clean up messy street names within the city of Zürich.</p>
+    <h3>How does it work?</h3>
+    <p>It uses <a href="https://mingle.io">mingle.io query API</a> to execute fuzzy string matching of every street name form the input against the official list of streets published by the city of Zürich. The API returns all the matches with at least 20% confidence and the UI selects only the best match.</p>
+    <a href="https://github.com/julochrobak/streetscleaner"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <h3>Open source and free</h3>
+    <p>The web page source code is available on github.com. You can use the mingle.io API for free or get a <a href="https://mingle.io/plans">premium access</a> with some guarantees.</p>
+    <footer>
+    <p>built by <a href="https://twitter.com/julochrobak">@julochrobak</a>, last update on 26.July 2013</p>
+    </footer>
+</body>
