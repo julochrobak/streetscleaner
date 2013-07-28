@@ -163,7 +163,7 @@ limaqua</pre>
     <p>It uses <a href="https://mingle.io">mingle.io query API</a> to execute fuzzy string matching of every street name form the input against the official list of streets published by the city of Zürich. The API returns all the matches with at least 20% confidence and the UI selects only the best match.</p>
     <a href="https://github.com/julochrobak/streetscleaner"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
     <h3>Command line utility</h3>
-    <p>You can also clean up street names using the <a href="https://github.com/julochrobak/streetscleaner/blob/master/streetscleaner.py"><code>streetscleaner.py</code></a> command line utility. It reads the names from the <code>stdin</code> (one street name per line) and returns comma separated values in the <code>stdout</code>. Errors are printed to the <code>sterr</code>.
+    <p>You can also clean up street names using the <a href="https://github.com/julochrobak/streetscleaner/blob/master/streetscleaner.py"><code>streetscleaner.py</code></a> command line utility. It reads the names from the <code>stdin</code> (one street name per line) and returns comma separated values in the <code>stdout</code>. Errors are printed to the <code>stderr</code>.
     <pre><code>
 curl https://raw.github.com/julochrobak/streetscleaner/master/streetscleaner.py \
   &gt; streetscleaner.py
