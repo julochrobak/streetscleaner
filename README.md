@@ -8,7 +8,7 @@ Download and open the `index.html` file in your browser and follow the instructi
 
 ## command line utility ##
 The `streetscleaner.py` is a command line utility which reads the names from the `stdin` (one street name per line) and returns comma separated
-values in the `stdout`. Errors are printed to the `sterr`.
+values in the `stdout`. Errors are printed to the `stderr`.
 
 Example:
 
