@@ -12,7 +12,6 @@ import urllib2
 
 streets = []
 
-# FIXME: read proper CSV from the input to allow commas in the street names
 for line in fileinput.input():
         streets.append(line.strip())
 
